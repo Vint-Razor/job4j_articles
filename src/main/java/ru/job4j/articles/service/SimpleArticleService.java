@@ -7,17 +7,12 @@ import ru.job4j.articles.model.Word;
 import ru.job4j.articles.service.generator.ArticleGenerator;
 import ru.job4j.articles.store.Store;
 
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class SimpleArticleService implements ArticleService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleArticleService.class.getSimpleName());
-
     private final ArticleGenerator articleGenerator;
 
     public SimpleArticleService(ArticleGenerator articleGenerator) {

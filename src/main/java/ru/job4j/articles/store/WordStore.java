@@ -16,11 +16,10 @@ import java.util.List;
 import java.util.Properties;
 
 public class WordStore implements Store<Word>, AutoCloseable {
-
+    private static final Path DICTIONARY_SQL = Path.of("db/scripts", "dictionary.sql");
+    private static final Path WORLD_SQL = Path.of("db/scripts", "words.sql");
     private static final Logger LOGGER = LoggerFactory.getLogger(WordStore.class.getSimpleName());
-
     private final Properties properties;
-
     private Connection connection;
 
     public WordStore(Properties properties) {
@@ -45,31 +44,29 @@ public class WordStore implements Store<Word>, AutoCloseable {
     }
 
     private void initScheme() {
-        Path path = Path.of("db/scripts", "dictionary.sql");
         LOGGER.info("Создание схемы таблицы слов");
         try (var statement = connection.createStatement()) {
-            var sql = Files.readString(path);
+            var sql = Files.readString(DICTIONARY_SQL);
             statement.execute(sql);
         } catch (SQLException e) {
             LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
             throw new IllegalStateException();
         } catch (IOException e) {
-            LOGGER.error(String.format("файл %s не найден", path.getFileName()));
+            LOGGER.error(String.format("файл %s не найден", DICTIONARY_SQL.getFileName()));
             throw new IllegalArgumentException();
         }
     }
 
     private void initWords() {
-        Path path = Path.of("db/scripts", "words.sql");
         LOGGER.info("Заполнение таблицы слов");
         try (var statement = connection.createStatement()) {
-            var sql = Files.readString(path);
+            var sql = Files.readString(WORLD_SQL);
             statement.executeLargeUpdate(sql);
         } catch (SQLException e) {
             LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
             throw new IllegalStateException();
         } catch (IOException e) {
-            LOGGER.error(String.format("файл %s не найден", path.getFileName()));
+            LOGGER.error(String.format("файл %s не найден", WORLD_SQL.getFileName()));
             throw new IllegalArgumentException();
         }
     }
@@ -118,5 +115,4 @@ public class WordStore implements Store<Word>, AutoCloseable {
             connection.close();
         }
     }
-
 }

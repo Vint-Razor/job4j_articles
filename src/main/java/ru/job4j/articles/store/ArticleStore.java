@@ -16,11 +16,9 @@ import java.util.List;
 import java.util.Properties;
 
 public class ArticleStore implements Store<Article>, AutoCloseable {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleStore.class.getSimpleName());
     private static final Path ARTICLES_SQL = Path.of("db/scripts", "articles.sql");
     private final Properties properties;
-
     private Connection connection;
 
     public ArticleStore(Properties properties) {
@@ -44,7 +42,6 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
     }
 
     private void initScheme() {
-
         LOGGER.info("Инициализация таблицы статей");
         try (var statement = connection.createStatement()) {
             var sql = Files.readString(ARTICLES_SQL);
