@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.job4j.articles.model.Article;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -17,7 +18,7 @@ import java.util.Properties;
 public class ArticleStore implements Store<Article>, AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleStore.class.getSimpleName());
-
+    private static final Path ARTICLES_SQL = Path.of("db/scripts", "articles.sql");
     private final Properties properties;
 
     private Connection connection;
@@ -36,20 +37,23 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
                     properties.getProperty("username"),
                     properties.getProperty("password")
             );
-        } catch (SQLException throwables) {
-            LOGGER.error("Не удалось выполнить операцию: { }", throwables.getCause());
+        } catch (SQLException e) {
+            LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
             throw new IllegalStateException();
         }
     }
 
     private void initScheme() {
+
         LOGGER.info("Инициализация таблицы статей");
         try (var statement = connection.createStatement()) {
-            var sql = Files.readString(Path.of("db/scripts", "articles.sql"));
+            var sql = Files.readString(ARTICLES_SQL);
             statement.execute(sql);
-        } catch (Exception e) {
+        } catch (SQLException e) {
             LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
             throw new IllegalStateException();
+        } catch (IOException e) {
+            LOGGER.error(String.format("файл %s не найден", ARTICLES_SQL));
         }
     }
 
@@ -64,7 +68,7 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
             while (key.next()) {
                 model.setId(key.getInt(1));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
             throw new IllegalStateException();
         }
@@ -84,7 +88,7 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
                         selection.getString("text")
                 ));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
             throw new IllegalStateException();
         }
@@ -92,7 +96,7 @@ public class ArticleStore implements Store<Article>, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws SQLException {
         if (connection != null) {
             connection.close();
         }

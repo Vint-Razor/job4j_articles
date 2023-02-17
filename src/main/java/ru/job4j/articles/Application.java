@@ -7,7 +7,9 @@ import ru.job4j.articles.service.generator.RandomArticleGenerator;
 import ru.job4j.articles.store.ArticleStore;
 import ru.job4j.articles.store.WordStore;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class Application {
@@ -18,11 +20,14 @@ public class Application {
 
     public static void main(String[] args) {
         var properties = loadProperties();
-        var wordStore = new WordStore(properties);
-        var articleStore = new ArticleStore(properties);
-        var articleGenerator = new RandomArticleGenerator();
-        var articleService = new SimpleArticleService(articleGenerator);
-        articleService.generate(wordStore, TARGET_COUNT, articleStore);
+        try (var wordStore = new WordStore(properties);
+                var articleStore = new ArticleStore(properties)) {
+            var articleGenerator = new RandomArticleGenerator();
+            var articleService = new SimpleArticleService(articleGenerator);
+            articleService.generate(wordStore, TARGET_COUNT, articleStore);
+        } catch (SQLException e) {
+            LOGGER.error("Не удалось закрыть соединение: { }", e.getCause());
+        }
     }
 
     private static Properties loadProperties() {
@@ -30,7 +35,7 @@ public class Application {
         var properties = new Properties();
         try (InputStream in = Application.class.getClassLoader().getResourceAsStream("application.properties")) {
             properties.load(in);
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Не удалось загрузить настройки. { }", e.getCause());
             throw new IllegalStateException();
         }
