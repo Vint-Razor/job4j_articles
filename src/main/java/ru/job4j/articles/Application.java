@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class Application {
 
@@ -19,6 +20,9 @@ public class Application {
     public static final int TARGET_COUNT = 1_000_000;
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("нажмите любую кнопку для старта программы");
+        String input = scanner.nextLine();
         var properties = loadProperties();
         try (var wordStore = new WordStore(properties);
              var articleStore = new ArticleStore(properties)) {
