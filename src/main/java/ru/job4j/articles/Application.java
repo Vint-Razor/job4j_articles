@@ -11,16 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.Scanner;
 
 public class Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class.getSimpleName());
     public static final int TARGET_COUNT = 1_000_000;
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("нажмите любую кнопку для старта программы");
-        String input = scanner.nextLine();
         var properties = loadProperties();
         try (var wordStore = new WordStore(properties);
              var articleStore = new ArticleStore(properties)) {
@@ -28,7 +24,7 @@ public class Application {
             var articleService = new SimpleArticleService(articleGenerator);
             articleService.generate(wordStore, TARGET_COUNT, articleStore);
         } catch (SQLException e) {
-            LOGGER.error("Не удалось закрыть соединение: { }", e.getCause());
+            LOGGER.error("Не удалось соединиться с БД: { }", e.getCause());
         }
     }
 

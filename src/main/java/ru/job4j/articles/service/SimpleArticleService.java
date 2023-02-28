@@ -7,12 +7,11 @@ import ru.job4j.articles.model.Word;
 import ru.job4j.articles.service.generator.ArticleGenerator;
 import ru.job4j.articles.store.Store;
 
-import java.lang.ref.WeakReference;
-import java.util.LinkedList;
 import java.util.List;
 
 public class SimpleArticleService implements ArticleService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleArticleService.class.getSimpleName());
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SimpleArticleService.class.getSimpleName());
     private final ArticleGenerator articleGenerator;
 
     public SimpleArticleService(ArticleGenerator articleGenerator) {
@@ -28,20 +27,4 @@ public class SimpleArticleService implements ArticleService {
             articleStore.save(articleGenerator.generate(words));
         }
     }
-
-    /*
-    @Override
-    public void generate(Store<Word> wordStore, int count, Store<Article> articleStore) {
-        LOGGER.info("Генерация статей в количестве {}", count);
-        List<Word> words = wordStore.findAll();
-        List<Article> articles = IntStream.iterate(0, i -> i < count, i -> i + 1)
-                .peek(i -> LOGGER.info("Сгенерирована статья № {}", i))
-                .mapToObj((x) -> articleGenerator.generate(words))
-                .collect(Collectors.toList());
-        articles.forEach(articleStore::save);
-    }
-    */
-
-
-
 }
