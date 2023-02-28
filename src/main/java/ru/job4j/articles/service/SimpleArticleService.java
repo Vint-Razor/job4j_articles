@@ -21,16 +21,12 @@ public class SimpleArticleService implements ArticleService {
 
     @Override
     public void generate(Store<Word> wordStore, int count, Store<Article> articleStore) {
-        LOGGER.error("Генерация статей в количестве {}", count);
+        LOGGER.info("Генерация статей в количестве {}", count);
         List<Word> words = wordStore.findAll();
-        List<Article> articles = new LinkedList<>();
         for (int i = 0; i < count; i++) {
             LOGGER.info("Сгенерирована статья № {}", i);
-            WeakReference<Article> article = new WeakReference<>(articleGenerator.generate(words));
-            articles.add(article.get());
-            article.clear();
+            articleStore.save(articleGenerator.generate(words));
         }
-        articles.forEach(articleStore::save);
     }
 
     /*

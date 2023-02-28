@@ -17,7 +17,7 @@ import java.util.Properties;
 
 public class WordStore implements Store<Word>, AutoCloseable {
     private static final Path DICTIONARY_SQL = Path.of("db/scripts", "dictionary.sql");
-    private static final Path WORLD_SQL = Path.of("db/scripts", "words.sql");
+    private static final Path WORD_SQL = Path.of("db/scripts", "words.sql");
     private static final Logger LOGGER = LoggerFactory.getLogger(WordStore.class.getSimpleName());
     private final Properties properties;
     private Connection connection;
@@ -60,13 +60,13 @@ public class WordStore implements Store<Word>, AutoCloseable {
     private void initWords() {
         LOGGER.info("Заполнение таблицы слов");
         try (var statement = connection.createStatement()) {
-            var sql = Files.readString(WORLD_SQL);
+            var sql = Files.readString(WORD_SQL);
             statement.executeLargeUpdate(sql);
         } catch (SQLException e) {
             LOGGER.error("Не удалось выполнить операцию: { }", e.getCause());
             throw new IllegalStateException();
         } catch (IOException e) {
-            LOGGER.error(String.format("файл %s не найден", WORLD_SQL.getFileName()));
+            LOGGER.error(String.format("файл %s не найден", WORD_SQL.getFileName()));
             throw new IllegalArgumentException();
         }
     }
